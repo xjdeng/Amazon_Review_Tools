@@ -106,7 +106,7 @@ def ParseReviews_url(amazon_url):
 							'review_text':full_review_text,
 							'review_posted_date':review_posted_date,
 							'review_header':review_header,
-							'review_rating':review_rating,
+							'review_rating':int(float(review_rating)),
 							'review_author':author
 
 						}
@@ -130,4 +130,16 @@ def download_reviews(url, startpage, endpage, wait = (1, 5)):
         baseurl = url[0:-1]
     else:
         baseurl = url
-    
+    results = None
+    for i in range(startpage, endpage + 1):
+        if isinstance(wait, tuple):
+            sleep(random.randrange(*wait))
+        else:
+            sleep(wait)
+        myurl = baseurl + str(i)
+        rawout = ParseReviews_url(myurl)
+        if results is None:
+            results = rawout
+        else:
+            results['reviews'] += rawout['reviews']
+    return results
