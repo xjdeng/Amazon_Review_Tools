@@ -9,6 +9,9 @@ from dateutil import parser as dateparser
 from time import sleep
 from fake_useragent import UserAgent
 import random
+from gensim.summarization.summarizer import summarize
+import warnings
+warnings.filterwarnings("ignore", message="Unverified HTTPS request is being made")
 
 ua = UserAgent()
 
@@ -125,13 +128,15 @@ def ParseReviews_url(amazon_url):
 
 	# return {"error":"failed to process the page","asin":asin}
     
-def download_reviews(url, startpage, endpage, wait = (1, 5)):
+def download_reviews(url, startpage, endpage, wait = (1, 5), verbose = True):
     if url[-1] == "1":
         baseurl = url[0:-1]
     else:
         baseurl = url
     results = None
     for i in range(startpage, endpage + 1):
+        if verbose == True:
+            print("Downloading page {} of {}".format(i, endpage))
         if isinstance(wait, tuple):
             sleep(random.randrange(*wait))
         else:
@@ -150,3 +155,8 @@ def combine_reviews(data, minrating = 4, shuffle = True):
     if shuffle == True:
         random.shuffle(goodreviews)
     return "\n".join(goodreviews)
+
+def summary(text, words = None):
+    if isinstance(words, tuple):
+        words = random.randrange(*words)
+    return summarize(text, word_count = words)
