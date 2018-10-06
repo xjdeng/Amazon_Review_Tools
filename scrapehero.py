@@ -143,3 +143,10 @@ def download_reviews(url, startpage, endpage, wait = (1, 5)):
         else:
             results['reviews'] += rawout['reviews']
     return results
+
+def combine_reviews(data, minrating = 4, shuffle = True):
+    goodreviews = [r['review_text'] for r in data['reviews'] if \
+                   r['review_rating'] >= minrating]
+    if shuffle == True:
+        random.shuffle(goodreviews)
+    return "\n".join(goodreviews)
