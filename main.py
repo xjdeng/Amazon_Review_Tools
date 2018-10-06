@@ -159,4 +159,4 @@ def combine_reviews(data, minrating = 4, shuffle = True):
 def summary(text, words = None):
     if isinstance(words, tuple):
         words = random.randrange(*words)
-    return summarize(text, word_count = words)
+    return summarize(text, word_count = words).replace('\n','  ')
