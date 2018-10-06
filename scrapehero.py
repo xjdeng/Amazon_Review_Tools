@@ -8,6 +8,7 @@ import re
 from dateutil import parser as dateparser
 from time import sleep
 from fake_useragent import UserAgent
+import random
 
 ua = UserAgent()
 
@@ -123,4 +124,10 @@ def ParseReviews_url(amazon_url):
 	# 		print("Retrying to get the correct response")
 
 	# return {"error":"failed to process the page","asin":asin}
+    
+def download_reviews(url, startpage, endpage, wait = (1, 5)):
+    if url[-1] == "1":
+        baseurl = url[0:-1]
+    else:
+        baseurl = url
     
