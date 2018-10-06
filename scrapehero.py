@@ -174,7 +174,7 @@ def ParseReviews_url(amazon_url):
 		XPATH_REVIEW_TEXT_1 = './/span[@data-hook="review-body"]//text()'
 		XPATH_REVIEW_TEXT_2 = './/div//span[@data-action="columnbalancing-showfullreview"]/@data-columnbalancing-showfullreview'
 		XPATH_REVIEW_COMMENTS = './/span[@data-hook="review-comment"]//text()'
-		XPATH_AUTHOR  = './/span[contains(@class,"profile-name")]//text()'
+		XPATH_AUTHOR  = './/a[@data-hook="review-author"]//text()'
 		XPATH_REVIEW_TEXT_3  = './/div[contains(@id,"dpReviews")]/div/text()'
 		
 		raw_review_author = review.xpath(XPATH_AUTHOR)
