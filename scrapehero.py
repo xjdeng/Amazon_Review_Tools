@@ -7,6 +7,9 @@ import requests
 import re
 from dateutil import parser as dateparser
 from time import sleep
+from fake_useragent import UserAgent
+
+ua = UserAgent()
 
 def ParseReviews(asin):
 	# for i in range(5):
@@ -128,7 +131,7 @@ def ParseReviews_url(amazon_url):
 	#amazon_url  = 'http://www.amazon.com/dp/'+asin
 	# Add some recent user agent to prevent amazon from blocking the request 
 	# Find some chrome user agent strings  here https://udger.com/resources/ua-list/browser-detail?browser=Chrome
-	headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
+	headers = {'User-Agent': ua.random}
 	page = requests.get(amazon_url,headers = headers,verify=False)
 	page_response = page.text
 
@@ -173,7 +176,7 @@ def ParseReviews_url(amazon_url):
 		XPATH_REVIEW_POSTED_DATE = './/span[@data-hook="review-date"]//text()'
 		XPATH_REVIEW_TEXT_1 = './/span[@data-hook="review-body"]//text()'
 		XPATH_REVIEW_TEXT_2 = './/div//span[@data-action="columnbalancing-showfullreview"]/@data-columnbalancing-showfullreview'
-		XPATH_REVIEW_COMMENTS = './/span[@data-hook="review-comment"]//text()'
+		XPATH_REVIEW_COMMENTS = './/span[@class="review-comment-total aok-hidden"]//text()'
 		XPATH_AUTHOR  = './/a[@data-hook="review-author"]//text()'
 		XPATH_REVIEW_TEXT_3  = './/div[contains(@id,"dpReviews")]/div/text()'
 		
