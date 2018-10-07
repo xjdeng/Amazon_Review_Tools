@@ -160,3 +160,27 @@ def summary(text, words = None):
     if isinstance(words, tuple):
         words = random.randrange(*words)
     return summarize(text, word_count = words).replace('\n','  ')
+
+def to_file(text, output = "output", tries = None):
+    if tries is None:
+        outfile = output + ".txt"
+    else:
+        outfile = output + str(tries) + ".txt"
+    try:
+        f = open(outfile, "w", encoding = "utf-8")
+        f.write(text)
+        f.close
+    except IOError:
+        if tries is None:
+            trynext = 1
+        else:
+            trynext = tries + 1
+        to_file(text, output, trynext)
+
+def run(url, startpage, endpage, wait = (1, 5), minrating = 4, shuffle = True,\
+        words = None, output = "output", verbose = True):
+    data = download_reviews(url, startpage, endpage, wait, verbose)
+    reviews = combine_reviews(data, minrating, shuffle)
+    mysummary = summary(reviews, words)
+    to_file(mysummary, output)
+    return data
