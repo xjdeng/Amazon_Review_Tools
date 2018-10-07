@@ -184,3 +184,9 @@ def run(url, startpage, endpage, wait = (1, 5), minrating = 4, shuffle = True,\
     mysummary = summary(reviews, words)
     to_file(mysummary, output)
     return data
+
+def run_data(data, minrating = 4, shuffle = True, words = None, output = \
+             "output"):
+    reviews = combine_reviews(data, minrating, shuffle)
+    mysummary = summary(reviews, words)
+    to_file(mysummary, output)    
