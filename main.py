@@ -142,11 +142,15 @@ def download_reviews(url, startpage, endpage, wait = (1, 5), verbose = True):
         else:
             sleep(wait)
         myurl = baseurl + str(i)
-        rawout = ParseReviews_url(myurl)
-        if results is None:
-            results = rawout
-        else:
-            results['reviews'] += rawout['reviews']
+        try:
+            rawout = ParseReviews_url(myurl)
+            if results is None:
+                results = rawout
+            else:
+                results['reviews'] += rawout['reviews']
+        except ValueError:
+            if verbose == True:
+                print("No reviews found, skipping.")
     return results
 
 def combine_reviews(data, minrating = 4, shuffle = True):
