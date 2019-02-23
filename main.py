@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore", message="Unverified HTTPS request is being mad
 
 ua = UserAgent()
 
-def ParseReviews_url(amazon_url):
+def ParseReviews_url(amazon_url, trial = 0):
 	# for i in range(5):
 	# 	try:
 	#This script has only been tested with Amazon.com
@@ -23,32 +23,39 @@ def ParseReviews_url(amazon_url):
 	# Add some recent user agent to prevent amazon from blocking the request 
 	# Find some chrome user agent strings  here https://udger.com/resources/ua-list/browser-detail?browser=Chrome
 	headers = {'User-Agent': ua.random}
-	page = requests.get(amazon_url,headers = headers,verify=False)
-	page_response = page.text
+	try:
+	    page = requests.get(amazon_url,headers = headers,verify=False)
+	    page_response = page.text
 
-	parser = html.fromstring(page_response)
-	XPATH_AGGREGATE = '//span[@id="acrCustomerReviewText"]'
-	XPATH_REVIEW_SECTION_1 = '//div[contains(@id,"reviews-summary")]'
-	XPATH_REVIEW_SECTION_2 = '//div[@data-hook="review"]'
+	    parser = html.fromstring(page_response)
+	    XPATH_AGGREGATE = '//span[@id="acrCustomerReviewText"]'
+	    XPATH_REVIEW_SECTION_1 = '//div[contains(@id,"reviews-summary")]'
+	    XPATH_REVIEW_SECTION_2 = '//div[@data-hook="review"]'
 
-	XPATH_AGGREGATE_RATING = '//table[@id="histogramTable"]//tr'
-	XPATH_PRODUCT_NAME = '//h1//span[@id="productTitle"]//text()'
-	XPATH_PRODUCT_PRICE  = '//span[@id="priceblock_ourprice"]/text()'
+	    XPATH_AGGREGATE_RATING = '//table[@id="histogramTable"]//tr'
+	    XPATH_PRODUCT_NAME = '//h1//span[@id="productTitle"]//text()'
+	    XPATH_PRODUCT_PRICE  = '//span[@id="priceblock_ourprice"]/text()'
 	
-	raw_product_price = parser.xpath(XPATH_PRODUCT_PRICE)
-	product_price = ''.join(raw_product_price).replace(',','')
+	    raw_product_price = parser.xpath(XPATH_PRODUCT_PRICE)
+	    product_price = ''.join(raw_product_price).replace(',','')
 
-	raw_product_name = parser.xpath(XPATH_PRODUCT_NAME)
-	product_name = ''.join(raw_product_name).strip()
-	total_ratings  = parser.xpath(XPATH_AGGREGATE_RATING)
-	reviews = parser.xpath(XPATH_REVIEW_SECTION_1)
-	if not reviews:
-		reviews = parser.xpath(XPATH_REVIEW_SECTION_2)
-	ratings_dict = {}
-	reviews_list = []
+	    raw_product_name = parser.xpath(XPATH_PRODUCT_NAME)
+	    product_name = ''.join(raw_product_name).strip()
+	    total_ratings  = parser.xpath(XPATH_AGGREGATE_RATING)
+	    reviews = parser.xpath(XPATH_REVIEW_SECTION_1)
+	    if not reviews:
+		    reviews = parser.xpath(XPATH_REVIEW_SECTION_2)
+	    ratings_dict = {}
+	    reviews_list = []
+	except Exception:
+		reviews = False
 	
 	if not reviews:
-		raise ValueError('unable to find reviews in page')
+		if trial == 0:
+			ValueError('unable to find reviews in page')
+		else:
+			sleep(1)
+			return ParseReviews_url(amazon_url, trial - 1)
 
 	#grabing the rating  section in product page
 	for ratings in total_ratings:
@@ -128,7 +135,7 @@ def ParseReviews_url(amazon_url):
 
 	# return {"error":"failed to process the page","asin":asin}
     
-def download_reviews(url, startpage, endpage, wait = (1, 5), verbose = True):
+def download_reviews(url, startpage, endpage, wait = (1, 5), verbose = True, trials = 3):
     if url[-1] == "1":
         baseurl = url[0:-1]
     else:
@@ -143,7 +150,7 @@ def download_reviews(url, startpage, endpage, wait = (1, 5), verbose = True):
             sleep(wait)
         myurl = baseurl + str(i)
         try:
-            rawout = ParseReviews_url(myurl)
+            rawout = ParseReviews_url(myurl, trials)
             if results is None:
                 results = rawout
             else:
@@ -182,8 +189,8 @@ def to_file(text, output = "output", tries = None):
         to_file(text, output, trynext)
 
 def run(url, startpage, endpage, wait = (1, 5), minrating = 4, shuffle = True,\
-        words = None, output = "output", verbose = True):
-    data = download_reviews(url, startpage, endpage, wait, verbose)
+        trials = 3, words = None, output = "output", verbose = True):
+    data = download_reviews(url, startpage, endpage, wait, verbose, trials)
     reviews = combine_reviews(data, minrating, shuffle)
     mysummary = summary(reviews, words)
     to_file(mysummary, output)
